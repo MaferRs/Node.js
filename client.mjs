@@ -4,7 +4,7 @@ const response = await fetch('http://localhost:3000/produtos?cor=azul&tamanho=g'
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(value)
+    body: JSON.stringify({ username: 'maria', password: '123456' })
   },
 )
 
