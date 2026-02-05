@@ -1,0 +1,27 @@
+# Dependências
+node_modules/
+jspm_packages/
+vendor/
+
+# Build e Logs
+dist/
+build/
+*.log
+npm-debug.log*
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Ambiente e Configurações
+.env
+.env.local
+.vscode/
+.idea/
+
+# Arquivos de IDEs
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
