@@ -15,7 +15,6 @@ const server = createServer(async (req, res) => {
   }
 
   const body = (Buffer.concat(chunks).toString('utf-8'))
-  console.log(JSON.parse(body))
 
   if (req.method === 'GET' && url.pathname === '/') {
     res.statusCode = 200 //expoe
@@ -28,7 +27,6 @@ const server = createServer(async (req, res) => {
     res.end('Página não encontrada')
   }
 
-  console.log(req.method)
 
 })
 
@@ -45,13 +43,10 @@ const frase1 = Promise.resolve('Olá ')
 const frase2 = Promise.resolve('Mundo ')
 const frasesPromises = [frase1, frase2]
 const frases = []
-console.log(frasesPromises)
 
 for await (const frase of frasesPromises) {
   frases.push(frase)
 }
-
-console.log(frases.join(''))
 
 
 //Buffer é um bloco de bytes em memoria. Para transformar esses bytes, precisamos concatenar  o Buffer e decodificar/interpretar para o formato apropriado.
@@ -59,8 +54,6 @@ console.log(frases.join(''))
 const part1 = Buffer.from('olá ')
 const part2 = Buffer.from('mundo')
 const final = Buffer.concat([part1, part2])
-
-console.log(final.toString('utf-8'))
 
 
 /* Body
