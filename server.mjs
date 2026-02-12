@@ -1,8 +1,32 @@
 import { createServer } from 'node:http';
+import { Router } from './router.mjs';
+
+const router = new Router();
+
+router.get('/', (req, res) => {
+  res.end('Home');
+});
+
+router.get('/contato', (req, res) => {
+  res.end('Contato');
+});
+
+router.get('/produto/notebook', (req, res) => {
+  res.end('Produtos - Notebook');
+});
+
+function postProduto(req, res) {
+  res.end('Notebook Post');
+}
+
+router.post('/produto', postProduto);
+
+console.log(router.routes);
 
 //cria servidores com Node.js
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   const chunks = [];
@@ -11,26 +35,13 @@ const server = createServer(async (req, res) => {
   }
 
   const body = Buffer.concat(chunks).toString('utf-8');
+  const handler = router.find(req.method, url.pathname);
 
-  if (req.method === 'GET' && url.pathname === '/') {
-    res.statusCode = 200; //expoe
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    const curso = 'Node.js';
-    return res.end(`<html>
-    <head>
-      <title>Curso de ${curso}</title>
-    </head>
-    <body
-      <h1>Curso de ${curso}</h1>
-    </body>
-  </html>`);
-  } else if (req.method === 'POST' && url.pathname === '/produtos') {
-    res.statusCode = 201; //cria
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify({ nome: 'Notebook' }));
+  if (handler) {
+    handler(req, res);
   } else {
-    res.statusCode = 404; //error
-    res.end('Página não encontrada');
+    res.statusCode = 404;
+    res.end('Não encontrado');
   }
 });
 
