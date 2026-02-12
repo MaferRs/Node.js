@@ -29,11 +29,13 @@ const server = createServer(async (req, res) => {
 
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+  // é um fragmento de dados brutos sendo transmitido
   const chunks = [];
   for await (const chunk of req) {
     chunks.push(chunk);
   }
 
+  // Junta todos os pedaços e transforma em uma string única
   const body = Buffer.concat(chunks).toString('utf-8');
   const handler = router.find(req.method, url.pathname);
 
