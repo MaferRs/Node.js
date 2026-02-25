@@ -2,29 +2,60 @@ import { createServer } from 'node:http';
 import { Router } from './router.mjs';
 import { customRequest } from './custom-request.mjs';
 import { customResponse } from './custom-response.mjs';
+import { mkdir, writeFile, readdir, readFile } from 'node:fs/promises';
 
 const router = new Router();
 
-router.get('/', (req, res) => {
-  res.status(200).end('Home');
+//Cria um novo produto
+router.post('/produtos', async (req, res) => {
+  const { categoria, slug } = req.body;
+  try {
+    await mkdir(`./produtos/${categoria}`, { recursive: true });
+  } catch {
+    // console.log(`${categoria} já criada`);
+  }
+
+  try {
+    await writeFile(`./produtos/${categoria}/${slug}.json`, JSON.stringify(req.body));
+    res.status(201).json(`${slug} criado`);
+  } catch {
+    res.status(500).end('Erro.');
+  }
 });
 
-router.get('/contato', (req, res) => {
-  res.status(200).end('Contato');
+// Cria um novo produto
+router.get('/produtos', async (req, res) => {
+  try {
+    const listaArquivos = await readdir('./produtos', { recursive: true });
+    const arquivosJson = listaArquivos.filter((item) => item.endsWith('.json'));
+
+    const promises = [];
+
+    for (const arquivo of arquivosJson) {
+      const conteudo = readFile(`./produtos/${arquivo}`, 'utf-8');
+      promises.push(conteudo);
+    }
+    const conteudos = await Promise.all(promises);
+    const produtos = conteudos.map(JSON.parse);
+    res.status(200).json(produtos);
+  } catch {
+    res.status(500).end('Erro.');
+  }
 });
 
-router.get('/produto/notebook', (req, res) => {
-  res.status(200).end('Produtos - Notebook');
+// Busca UM produto específico
+router.get('/produto', async (req, res) => {
+  const categoria = req.query.get('categoria');
+  const slug = req.query.get('slug');
+
+  try {
+    const conteudo = await readFile(`./produtos/${categoria}/${slug}.json`, 'utf-8');
+    const produto = JSON.parse(conteudo);
+    res.status(200).json(produto);
+  } catch {
+    res.status(404).json('Não encontrado');
+  }
 });
-
-function postProduto(req, res) {
-  const cor = req.query.get('cor');
-  res.status(201).json({ [produto]: 'Notebook', cor });
-}
-
-router.post('/produto', postProduto);
-
-console.log(router.routes);
 
 //cria servidores com Node.js
 const server = createServer(async (request, response) => {
@@ -33,7 +64,7 @@ const server = createServer(async (request, response) => {
 
   const handler = router.find(req.method, req.pathname);
   if (handler) {
-    handler(req, res);
+    await handler(req, res);
   } else {
     res.status(404).end('Não encontrado');
   }
